@@ -33,6 +33,7 @@ const LocalStrategy = require("passport-local").Strategy;
 const app = express();
 const fs = require("fs");
 const path = require("path");
+const { FilmViewController } = require("./controlers/FilmView");
 module.exports = dirPath = path.join(__dirname);
 app.use("/public", express.static("public"));
 app.use(
@@ -232,6 +233,9 @@ app.put("/video/updateVideo", VideoController.updateVidio);
 app.post("/comment/newComment", CommentController.newComment);
 app.delete("/comment/deleteComment", CommentController.deleteComment);
 app.put("/comment/updateComment", CommentController.updateComment);
+
+////FilmView
+app.get("/filmview/add", FilmViewController.addFilmView);
 
 ///Server
 app.listen(3000);

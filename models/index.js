@@ -24,6 +24,7 @@ const Actor = require("./actor")(sequelize, Sequelize);
 const ActorFilm = require("./actorFilm")(sequelize, Sequelize);
 const Author = require("./author")(sequelize, Sequelize);
 const AuthorFilm = require("./authorFilm")(sequelize, Sequelize);
+const FilmView = require("./film_view")(sequelize, Sequelize);
 
 Category.hasMany(Film);
 Film.belongsTo(Category);
@@ -60,4 +61,5 @@ module.exports = {
   Actor,
   Country,
   User,
+  FilmView,
 };
