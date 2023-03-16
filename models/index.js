@@ -1,9 +1,15 @@
 const { Sequelize } = require("sequelize");
-const config = { DB: "kinopoisk", USER: "root", PASSWORD: "" };
-const sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
-  host: "localhost",
-  dialect: "mysql",
-});
+const configDataBase = require("../configDataBase");
+
+const sequelize = new Sequelize(
+  configDataBase.DB,
+  configDataBase.USER,
+  configDataBase.PASSWORD,
+  {
+    host: "localhost",
+    dialect: "mysql",
+  }
+);
 
 const User = require("./user")(sequelize, Sequelize);
 const Genre = require("./genre")(sequelize, Sequelize);
