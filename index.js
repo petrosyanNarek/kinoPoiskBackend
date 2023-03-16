@@ -7,7 +7,6 @@ const storage = multer.diskStorage({
     if (file.originalname.match(/\.(jpg|jpeg|png)$/)) {
       callback(null, "./public/images");
     } else if (file.originalname.match(/\.(mp4)$/)) {
-      console.log(file);
       callback(null, "./public/video");
     }
   },
@@ -154,9 +153,9 @@ app.post(
     {
       name: "video",
     },
-    {
-      name: "sliderImg",
-    },
+    // {
+    //   name: "sliderImg",
+    // },
   ]),
   FilmController.addFilm
 );
@@ -173,9 +172,9 @@ app.put(
     {
       name: "video",
     },
-    {
-      name: "sliderImg",
-    },
+    // {
+    //   name: "sliderImg",
+    // },
   ]),
   FilmController.updateFilm
 );
@@ -193,9 +192,9 @@ app.post(
     {
       name: "video",
     },
-    {
-      name: "sliderImg",
-    },
+    // {
+    //   name: "sliderImg",
+    // },
   ]),
   SeriesController.addSeries
 );
@@ -211,9 +210,9 @@ app.put(
     {
       name: "video",
     },
-    {
-      name: "sliderImg",
-    },
+    // {
+    //   name: "sliderImg",
+    // },
   ]),
   SeriesController.updateSeries
 );

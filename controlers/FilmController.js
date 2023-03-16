@@ -17,13 +17,13 @@ class FilmController {
       const cardImg = `http://localhost:3000/${req.files.cardImg[0].path}`;
       const trailer = `http://localhost:3000/${req.files.trailer[0].path}`;
       const video = `http://localhost:3000/${req.files.video[0].path}`;
-      const sliderImg = `http://localhost:3000/${req.files.sliderImg[0].path}`;
+      // const sliderImg = `http://localhost:3000/${req.files.sliderImg[0].path}`;
       const newFilm = await Film.create({
         ...film,
         cardImg,
         trailer,
         video,
-        sliderImg,
+        // sliderImg,
       });
       countries.forEach((countr) => {
         FilmCountryController.addFilmCountry({
@@ -58,7 +58,8 @@ class FilmController {
 
   static async updateFilm(req, res) {
     let { id, genre, country, actor, author, ...film } = req.body;
-    let cardImg, trailer, video, sliderImg;
+    let cardImg, trailer, video;
+    //  sliderImg;
     if (req.files.cardImg) {
       cardImg = `http://localhost:3000/${req.files.cardImg[0].path}`;
     }
@@ -69,9 +70,9 @@ class FilmController {
     if (req.files.video) {
       video = `http://localhost:3000/${req.files.video[0].path}`;
     }
-    if (req.files.sliderImg) {
-      sliderImg = `http://localhost:3000/${req.files.sliderImg[0].path}`;
-    }
+    // if (req.files.sliderImg) {
+    //   sliderImg = `http://localhost:3000/${req.files.sliderImg[0].path}`;
+    // }
     const getFilm = await Film.findOne({ where: { id: +id[0] } });
     if (cardImg) {
       const cardImgPath = getFilm.cardImg.split("\\");
@@ -84,19 +85,19 @@ class FilmController {
         }
       );
     }
-    if (sliderImg) {
-      const sliderImgPath = getFilm.sliderImg.split("\\");
-      fs.unlink(
-        process.cwd() +
-          "/public/images/" +
-          sliderImgPath[sliderImgPath.length - 1],
-        (err) => {
-          if (err) {
-            return new Error(err);
-          }
-        }
-      );
-    }
+    // if (sliderImg) {
+    //   const sliderImgPath = getFilm.sliderImg.split("\\");
+    //   fs.unlink(
+    //     process.cwd() +
+    //       "/public/images/" +
+    //       sliderImgPath[sliderImgPath.length - 1],
+    //     (err) => {
+    //       if (err) {
+    //         return new Error(err);
+    //       }
+    //     }
+    //   );
+    // }
     if (trailer) {
       const trailerPath = getFilm.trailer.split("\\");
       fs.unlink(
@@ -155,7 +156,7 @@ class FilmController {
         cardImg,
         trailer,
         video,
-        sliderImg,
+        // sliderImg,
       },
       {
         where: {
@@ -384,71 +385,75 @@ class FilmController {
   }
 
   static async sortAndFilteresFilms(req, res) {
-    const { page, limit } = pageLimitChek(req.body.page, req.body.limit);
-    let includeFilterItems = [];
-    const sortBy = req.body.sortBy || "createdAt";
-    const sortOrder = req.body.sortOrder || "DESC";
-    const filterValue = req.body.filterValue || "";
-    const categoryId = req.body.categoryId || "";
-    const genres = checkAndReplace(req.body.genres);
-    includeFilterItems = checkIncludeFilterItems(
-      includeFilterItems,
-      genres,
-      Genre
-    );
-    const countries = checkAndReplace(req.body.countries);
-    includeFilterItems = checkIncludeFilterItems(
-      includeFilterItems,
-      countries,
-      Country
-    );
-    const authors = checkAndReplace(req.body.authors);
-    includeFilterItems = checkIncludeFilterItems(
-      includeFilterItems,
-      authors,
-      Author
-    );
-    const actors = checkAndReplace(req.body.authors);
-    includeFilterItems = checkIncludeFilterItems(
-      includeFilterItems,
-      actors,
-      Actor
-    );
-    const {
-      cardImg,
-      video,
-      trailer,
-      cratedAt,
-      sliderImg,
-      createdAt,
-      updatedAt,
-      id,
-      ...film
-    } = Film.rawAttributes;
-    const attributes = Object.keys(film);
+    try {
+      const { page, limit } = pageLimitChek(req.body.page, req.body.limit);
+      let includeFilterItems = [];
+      const sortBy = req.body.sortBy || "createdAt";
+      const sortOrder = req.body.sortOrder || "DESC";
+      const filterValue = req.body.filterValue || "";
+      const categoryId = req.body.categoryId || "";
+      const genres = checkAndReplace(req.body.genres);
+      includeFilterItems = checkIncludeFilterItems(
+        includeFilterItems,
+        genres,
+        Genre
+      );
+      const countries = checkAndReplace(req.body.countries);
+      includeFilterItems = checkIncludeFilterItems(
+        includeFilterItems,
+        countries,
+        Country
+      );
+      const authors = checkAndReplace(req.body.authors);
+      includeFilterItems = checkIncludeFilterItems(
+        includeFilterItems,
+        authors,
+        Author
+      );
+      const actors = checkAndReplace(req.body.authors);
+      includeFilterItems = checkIncludeFilterItems(
+        includeFilterItems,
+        actors,
+        Actor
+      );
+      const {
+        cardImg,
+        video,
+        trailer,
+        cratedAt,
+        sliderImg,
+        createdAt,
+        updatedAt,
+        id,
+        ...film
+      } = Film.rawAttributes;
+      const attributes = Object.keys(film);
 
-    const options = sortBySearchBy(
-      sortBy,
-      sortOrder,
-      attributes,
-      filterValue,
-      includeFilterItems,
-      categoryId
-    );
-    const results = await Film.findAll({
-      ...options,
-    });
+      const options = sortBySearchBy(
+        sortBy,
+        sortOrder,
+        attributes,
+        filterValue,
+        includeFilterItems,
+        categoryId
+      );
+      const results = await Film.findAll({
+        ...options,
+      });
 
-    let films = await Film.findAll({
-      ...options,
-      limit,
-      offset: page,
-    });
-    res.status(200).send({
-      films,
-      totoalFilmCount: results.length,
-      totalPageCount: Math.ceil(results.length / limit),
-    });
+      let films = await Film.findAll({
+        ...options,
+        limit,
+        offset: page,
+      });
+      res.status(200).send({
+        films,
+        totoalFilmCount: results.length,
+        totalPageCount: Math.ceil(results.length / limit),
+      });
+    } catch (err) {
+      res.status(500).send(err);
+    }
   }
 }
 
