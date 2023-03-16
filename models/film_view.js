@@ -9,7 +9,7 @@ module.exports = (sequelize, Sequelize) => {
       view_ip: {
         type: Sequelize.STRING,
         allowNull: false,
-      },
+      }
     },
     {
       freezeTableName: true,

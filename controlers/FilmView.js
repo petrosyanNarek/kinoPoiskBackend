@@ -1,5 +1,4 @@
 const { FilmView, Film } = require("../models");
-const chekDate = require("./hooks/chekDate");
 const getIP = require("ipware")().get_ip;
 class FilmViewController {
   static async addFilmView(req, res) {
@@ -26,7 +25,7 @@ class FilmViewController {
           },
         }
       );
-    } else if (chekDate(filmView.createdAt)) {
+    } else if (new Date() - filmView.createdAt >= 86400000) {
       await FilmView.update(
         {
           createdAt: new Date(),
