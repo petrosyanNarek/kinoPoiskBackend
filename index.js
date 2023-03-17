@@ -2,6 +2,24 @@ const express = require("express");
 const passport = require("passport");
 const cors = require("cors");
 const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
+const LocalStrategy = require("passport-local").Strategy;
+
+const { GenreController } = require("./controlers/GenreController");
+const { FilmController } = require("./controlers/FilmController");
+const { CountryController } = require("./controlers/CountryController");
+const { SeriesController } = require("./controlers/SeriesController");
+const { CategoryController } = require("./controlers/CategoryController");
+const { ActorController } = require("./controlers/ActorController");
+const { AuthorController } = require("./controlers/AuthorController");
+const { CommentController } = require("./controlers/CommentController");
+const { FilmViewController } = require("./controlers/FilmView");
+const { UserController } = require("./controlers/UserController");
+const { AdminController } = require("./controlers/AdminController");
+const { User } = require("./models");
+const { Admin } = require("./models");
+
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
     if (file.originalname.match(/\.(jpg|jpeg|png)$/)) {
@@ -18,22 +36,8 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
 });
-const { User } = require("./models");
-const { UserController } = require("./controlers/UserController");
-const { GenreController } = require("./controlers/GenreController");
-const { FilmController } = require("./controlers/FilmController");
-const { CountryController } = require("./controlers/CountryController");
-const { SeriesController } = require("./controlers/SeriesController");
-const { CategoryController } = require("./controlers/CategoryController");
-const { VideoController } = require("./controlers/VideoController");
-const { ActorController } = require("./controlers/ActorController");
-const { AuthorController } = require("./controlers/AuthorController");
-const { CommentController } = require("./controlers/CommentController");
-const LocalStrategy = require("passport-local").Strategy;
+
 const app = express();
-const fs = require("fs");
-const path = require("path");
-const { FilmViewController } = require("./controlers/FilmView");
 module.exports = dirPath = path.join(__dirname);
 app.use("/public", express.static("public"));
 app.use(
@@ -83,6 +87,12 @@ app.post("/login", UserController.Login);
 app.post("/addUser", UserController.addUser);
 app.post("/getUser", UserController.GetUser);
 app.post("/logOut", UserController.Logout);
+
+////Admin
+app.post("/loginAdmin", AdminController.login);
+app.post("/addAdmin", AdminController.newAdmin);
+app.post("/getAdmin", AdminController.getAdmin);
+app.post("/logOutAdmin", AdminController.logout);
 
 ///Category
 app.get("/category/allCategory", CategoryController.getAllCategory);
@@ -223,11 +233,6 @@ app.get("/series/getSeriesFilm", SeriesController.getSeriesByFilmId);
 app.get("/series/getSeriesById", SeriesController.getSeriesById);
 app.get("/series/getSeries", SeriesController.getSeries);
 app.post("/series/getFilteredSeries", SeriesController.sortAndFilteresSeries);
-
-///Video
-app.post("/video/newVideo", VideoController.addWideo);
-app.delete("/video/deleteVideo", VideoController.deleteVidio);
-app.put("/video/updateVideo", VideoController.updateVidio);
 
 ///comment
 app.post("/comment/newComment", CommentController.newComment);

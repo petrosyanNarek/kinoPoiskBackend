@@ -2,32 +2,27 @@ const passport = require("passport");
 const { User } = require("../models");
 const bcrypt = require("bcrypt");
 
-class UserController {
-  static async addUser(req, res) {
+class AdminController {
+  static async newAdmin(req, res) {
     const us = req.body;
     const userFind = await User.findOne({ where: { email: us.email } });
     if (userFind) {
-      res.status(400).send({ message: "Email alredy used!" });
+      res.send(false);
     } else {
       us.password = await bcrypt.hash(us.password, 10);
-      try {
-        await User.create({ ...us });
-        res.status(200).send("You have successfully registered");
-      } catch (e) {
-        console.log(e);
-        res.status(500).send("Networ error");
-      }
+      let result = await User.create({ ...us });
+      res.send(true);
     }
   }
 
-  static async GetUser(req, res) {
+  static async getAdmin(req, res) {
     if (req.body.id) {
-      const user = await User.findOne({
-        attributes: ["id", "fullName", "email"],
-        where: { id: req.body.id },
-      });
+      const user = await User.findOne({ where: { id: req.body.id } });
       if (user) {
-        res.status(200).send({ user: user ? user : {} });
+        const { id, name, surname, email, verify } = user;
+        res
+          .status(200)
+          .send({ user: user ? { id, name, surname, email, verify } : {} });
       } else {
         res.status(200).send({ user: null });
       }
@@ -36,7 +31,7 @@ class UserController {
     }
   }
 
-  static async LoginCheck(email, password, done) {
+  static async loginCheck(email, password, done) {
     let user = await User.findOne({ where: { email: email } });
     if (!user) {
       return done("The email is incorrect", false);
@@ -49,7 +44,7 @@ class UserController {
 
     return done(null, user);
   }
-  static Login(req, res, next) {
+  static login(req, res, next) {
     passport.authenticate("local", function (err, user, info) {
       if (user) {
         req.logIn(user, (err) => {
@@ -64,9 +59,9 @@ class UserController {
       }
     })(req, res, next);
   }
-  static Logout(req, res) {
+  static logout(req, res) {
     req.logout();
     res.send({ status: "OK" });
   }
 }
-module.exports = { UserController };
+module.exports = { AdminController };

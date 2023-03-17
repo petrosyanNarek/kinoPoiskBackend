@@ -4,7 +4,6 @@ module.exports = (sequelize, Sequelize) => {
     {
       filmId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
         references: {
           model: "films",
           key: "id",
@@ -21,19 +20,16 @@ module.exports = (sequelize, Sequelize) => {
         onDelete: "cascade",
         onUpdate: "cascade",
       },
-      userName: {
-        type: Sequelize.STRING,
-        allowNull: false,
+      userId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "users",
+          key: "id",
+        },
+        onDelete: "cascade",
+        onUpdate: "cascade",
       },
-      userEmail: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      userPhone: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      userMessage: {
+      message: {
         type: Sequelize.STRING,
         allowNull: false,
       },

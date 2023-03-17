@@ -1,5 +1,14 @@
 const { Op } = require("sequelize");
-const { Film, Genre, Country, Series, Actor, Author } = require("../models");
+const {
+  Film,
+  Genre,
+  Country,
+  Series,
+  Actor,
+  Author,
+  Comment,
+  User,
+} = require("../models");
 const { ActorFilmController } = require("./ActorFilmController");
 const { AuthorFilmController } = require("./AuthorFilmController");
 const { FilmCountryController } = require("./FilmCountryController");
@@ -221,9 +230,7 @@ class FilmController {
   static async getAllFilm(req, res) {
     const films = await Film.findAll({
       where: {
-        categoryId: {
-          [Op.or]: [2, 3],
-        },
+        categoryId: 1,
       },
       include: [
         { model: Genre, required: true },
@@ -241,32 +248,28 @@ class FilmController {
       where: {
         id: +id,
       },
-      include: [
-        { model: Genre, required: true },
-        { model: Country, required: true },
-        { model: Actor, required: true },
-        { model: Author, required: true },
-      ],
     });
     const film2 = await Film.findOne({
       where: {
         id: +id,
       },
-      include:
-        film.categoryId == 2
-          ? [
-              { model: Genre, required: true },
-              { model: Country, required: true },
-              { model: Actor, required: true },
-              { model: Author, required: true },
-              { model: Series, required: true },
-            ]
-          : [
-              { model: Genre, required: true },
-              { model: Country, required: true },
-              { model: Actor, required: true },
-              { model: Author, required: true },
-            ],
+      include: [
+        { model: Genre, required: true },
+        { model: Country, required: true },
+        { model: Actor, required: true },
+        { model: Author, required: true },
+        { model: Series },
+        {
+          model: Comment,
+          attributes: ["id", "message", "commentLike", "commentDisLike"],
+          include: [
+            {
+              model: User,
+              attributes: ["fullName", "id"],
+            },
+          ],
+        },
+      ],
     });
     if (film2) {
       res.status(200).send(film2);
