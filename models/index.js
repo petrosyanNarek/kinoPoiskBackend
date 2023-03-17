@@ -26,13 +26,22 @@ const ActorFilm = require("./actorFilm")(sequelize, Sequelize);
 const Author = require("./author")(sequelize, Sequelize);
 const AuthorFilm = require("./authorFilm")(sequelize, Sequelize);
 const FilmView = require("./film_view")(sequelize, Sequelize);
+const CommentAnwsers = require("./commentAnwsers")(sequelize, Sequelize);
 
 Category.hasMany(Film);
 Film.belongsTo(Category);
+
 Film.hasMany(Comment);
 Comment.belongsTo(Film);
+
 User.hasMany(Comment);
 Comment.belongsTo(User);
+
+Comment.hasMany(CommentAnwsers);
+CommentAnwsers.belongsTo(Comment);
+
+User.hasMany(CommentAnwsers);
+CommentAnwsers.belongsTo(User);
 
 Film.belongsToMany(Genre, { through: FilmGenre });
 Genre.belongsToMany(Film, { through: FilmGenre });
