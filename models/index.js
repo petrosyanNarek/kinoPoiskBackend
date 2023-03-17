@@ -12,6 +12,7 @@ const sequelize = new Sequelize(
 );
 
 const User = require("./user")(sequelize, Sequelize);
+const Admin = require("./admin")(sequelize, Sequelize);
 const Genre = require("./genre")(sequelize, Sequelize);
 const Category = require("./category")(sequelize, Sequelize);
 const Film = require("./film")(sequelize, Sequelize);
@@ -30,6 +31,8 @@ Category.hasMany(Film);
 Film.belongsTo(Category);
 Film.hasMany(Comment);
 Comment.belongsTo(Film);
+User.hasMany(Comment);
+Comment.belongsTo(User);
 
 Film.belongsToMany(Genre, { through: FilmGenre });
 Genre.belongsToMany(Film, { through: FilmGenre });
@@ -62,4 +65,5 @@ module.exports = {
   Country,
   User,
   FilmView,
+  Admin,
 };

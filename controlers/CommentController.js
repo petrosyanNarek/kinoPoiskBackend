@@ -1,38 +1,45 @@
-const { Comment } = require("../models")
+const { Comment } = require("../models");
 
-class CommentController{
-    static async newComment(req,res){
-        const { comment } = req.body
+class CommentController {
+  static async newComment(req, res) {
+    try {
+      const { rating, ...comment } = req.body;
+      console.log(comment);
 
-        await Comment.create(comment)
+      await Comment.create(comment);
 
-        res.status(200).send('created')
+      res.status(200).send("created");
+    } catch (err) {
+      res.status(500).send("err");
     }
+  }
 
-    static async deleteComment(req,res){
-        const { id } = req.body
+  static async deleteComment(req, res) {
+    const { id } = req.body;
 
-        await Comment.destroy({
-            where:{ id }
-        })
-        
-        res.status(200).send('deleted')
-    }
+    await Comment.destroy({
+      where: { id },
+    });
 
-    static async updateComment(req,res){
-        const { id , comment } = req.body
+    res.status(200).send("deleted");
+  }
 
-        await Comment.update({
-            ...comment,
-            },{
-            where: {
-                id
-            }
-        })
+  static async updateComment(req, res) {
+    const { id, comment } = req.body;
 
-        res.status(200).send('updated')
-    }
+    await Comment.update(
+      {
+        ...comment,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
 
+    res.status(200).send("updated");
+  }
 }
 
-module.exports = { CommentController }
+module.exports = { CommentController };
