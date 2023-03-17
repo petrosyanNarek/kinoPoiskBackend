@@ -12,7 +12,6 @@ class FilmViewController {
     });
 
     if (!filmView) {
-      ("log lll");
       await FilmView.create({
         film_id: id,
         view_ip: ip,
