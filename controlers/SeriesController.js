@@ -1,4 +1,4 @@
-const { Series } = require("../models");
+const { Series, Comment, User } = require("../models");
 const pageLimitChek = require("./hooks/pageLimitChek");
 const sortBySearchBy = require("./hooks/sortBySearchBy");
 
@@ -139,7 +139,27 @@ class SeriesController {
       where: {
         id,
       },
+      include: [
+        {
+          model: Comment,
+          attributes: [
+            "id",
+            "message",
+            "commentLike",
+            "commentDisLike",
+            "createdAt",
+          ],
+          order: ["createdAt", "DESC"],
+          include: [
+            {
+              model: User,
+              attributes: ["fullName", "id"],
+            },
+          ],
+        },
+      ],
     });
+    console.log(series);
     res.status(200).send(series);
   }
   static async sortAndFilteresSeries(req, res) {

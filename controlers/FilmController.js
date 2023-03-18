@@ -261,7 +261,14 @@ class FilmController {
         { model: Series },
         {
           model: Comment,
-          attributes: ["id", "message", "commentLike", "commentDisLike"],
+          attributes: [
+            "id",
+            "message",
+            "commentLike",
+            "commentDisLike",
+            "createdAt",
+          ],
+          order: [["createdAt", "DESC"]],
           include: [
             {
               model: User,
