@@ -83,7 +83,10 @@ passport.deserializeUser(async function (id, done) {
   let user = await User.findByPk(id);
   done(null, user);
 });
-
+// passport.deserializeUser(async function (data, done) {
+//   let user = data.verify == 0 ? await Student.findByPk(data.id) : await Teacher.findByPk(data.id);
+//   done(null, user);
+// })
 ////User
 app.post("/login", UserController.Login);
 app.post("/addUser", UserController.addUser);
