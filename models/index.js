@@ -27,6 +27,7 @@ const Author = require("./author")(sequelize, Sequelize);
 const AuthorFilm = require("./authorFilm")(sequelize, Sequelize);
 const FilmView = require("./film_view")(sequelize, Sequelize);
 const CommentAnwsers = require("./commentAnwsers")(sequelize, Sequelize);
+const CommentRating = require("./comment_rating")(sequelize, Sequelize);
 
 Category.hasMany(Film);
 Film.belongsTo(Category);
@@ -42,6 +43,15 @@ CommentAnwsers.belongsTo(Comment);
 
 User.hasMany(CommentAnwsers);
 CommentAnwsers.belongsTo(User);
+
+User.hasMany(CommentRating);
+CommentRating.belongsTo(User);
+
+Comment.hasMany(CommentRating);
+CommentRating.belongsTo(Comment);
+
+CommentAnwsers.hasMany(CommentRating);
+CommentRating.belongsTo(CommentAnwsers);
 
 Film.belongsToMany(Genre, { through: FilmGenre });
 Genre.belongsToMany(Film, { through: FilmGenre });
@@ -75,4 +85,6 @@ module.exports = {
   User,
   FilmView,
   Admin,
+  CommentRating,
+  CommentAnwsers
 };

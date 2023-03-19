@@ -4,7 +4,9 @@ module.exports = (sequelize, Sequelize) => {
     {
       film_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+      },
+      serial_id: {
+        type: Sequelize.INTEGER,
       },
       view_ip: {
         type: Sequelize.STRING,

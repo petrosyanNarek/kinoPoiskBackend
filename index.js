@@ -14,11 +14,13 @@ const { CategoryController } = require("./controlers/CategoryController");
 const { ActorController } = require("./controlers/ActorController");
 const { AuthorController } = require("./controlers/AuthorController");
 const { CommentController } = require("./controlers/CommentController");
-const { FilmViewController } = require("./controlers/FilmView");
+const { FilmViewController } = require("./controlers/FilmViewController");
 const { UserController } = require("./controlers/UserController");
 const { AdminController } = require("./controlers/AdminController");
 const { User } = require("./models");
 const { Admin } = require("./models");
+const { CommentRatingController } = require("./controlers/CommentRatingController");
+const { CommentAnwserController } = require("./controlers/CommentAnwser");
 
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
@@ -239,8 +241,16 @@ app.post("/comment/newComment", CommentController.newComment);
 app.delete("/comment/deleteComment", CommentController.deleteComment);
 app.put("/comment/updateComment", CommentController.updateComment);
 
+
+/////
+app.post("/commentAnwser/newComment", CommentAnwserController.newComment);
+
 ////FilmView
 app.get("/filmview/add", FilmViewController.addFilmView);
+
+////CommentRating
+app.post("/commentRating", CommentRatingController.addCommentRating);
+app.get('/commentAnwsers', CommentAnwserController.getCommentAnwser)
 
 ///Server
 app.listen(3000);

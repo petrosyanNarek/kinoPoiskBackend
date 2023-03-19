@@ -40,6 +40,22 @@ class CommentController {
 
     res.status(200).send("updated");
   }
+
+  static async updateCommentRating(commentRating, id) {
+
+    await Comment.update(
+      {
+        ...commentRating,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+
+  }
+
 }
 
 module.exports = { CommentController };

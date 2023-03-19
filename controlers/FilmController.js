@@ -8,6 +8,8 @@ const {
   Author,
   Comment,
   User,
+  CommentAnwsers,
+  CommentRating,
 } = require("../models");
 const { ActorFilmController } = require("./ActorFilmController");
 const { AuthorFilmController } = require("./AuthorFilmController");
@@ -197,8 +199,8 @@ class FilmController {
     const sliderImgPath = getDeletedFilm.sliderImg.split("\\");
     fs.unlink(
       process.cwd() +
-        "/public/images/" +
-        sliderImgPath[sliderImgPath.length - 1],
+      "/public/images/" +
+      sliderImgPath[sliderImgPath.length - 1],
       (err) => {
         if (err) {
           return new Error(err);
@@ -268,11 +270,37 @@ class FilmController {
             "commentDisLike",
             "createdAt",
           ],
-          order: [["createdAt", "DESC"]],
           include: [
             {
               model: User,
               attributes: ["fullName", "id"],
+            },
+            {
+              model: CommentRating,
+              include: [
+                {
+                  model: User,
+                  attributes: ["fullName", "id"]
+                }
+              ]
+            },
+            {
+              model: CommentAnwsers,
+              include: [
+                {
+                  model: User,
+                  attributes: ["fullName", "id"]
+                },
+                {
+                  model: CommentRating,
+                  include: [
+                    {
+                      model: User,
+                      attributes: ["fullName", "id"]
+                    },
+                  ]
+                }
+              ],
             },
           ],
         },
