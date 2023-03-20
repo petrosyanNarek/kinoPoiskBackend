@@ -1,4 +1,11 @@
-const { Series, Comment, User } = require("../models");
+const {
+  Series,
+  Comment,
+  User,
+  CommentRating,
+  CommentAnwsers,
+} = require("../models");
+const commentAnwsers = require("../models/commentAnwsers");
 const pageLimitChek = require("./hooks/pageLimitChek");
 const sortBySearchBy = require("./hooks/sortBySearchBy");
 
@@ -26,7 +33,20 @@ class SeriesController {
     });
     res.status(200).send("deleted");
   }
-
+  static async updateSeriesRating(req, res) {
+    const { id, rating } = req.body;
+    await Series.update(
+      {
+        rating,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+    res.status(200);
+  }
   static async updateSeries(req, res) {
     console.log("up");
     let { id, ...seria } = req.body;
@@ -149,17 +169,43 @@ class SeriesController {
             "commentDisLike",
             "createdAt",
           ],
-          order: ["createdAt", "DESC"],
           include: [
             {
               model: User,
               attributes: ["fullName", "id"],
             },
+            {
+              model: CommentRating,
+              include: [
+                {
+                  model: User,
+                  attributes: ["fullName", "id"],
+                },
+              ],
+            },
+            {
+              model: CommentAnwsers,
+              include: [
+                {
+                  model: User,
+                  attributes: ["fullName", "id"],
+                },
+                {
+                  model: CommentRating,
+                  include: [
+                    {
+                      model: User,
+                      attributes: ["fullName", "id"],
+                    },
+                  ],
+                },
+              ],
+            },
           ],
         },
       ],
     });
-    console.log(series);
+    console.log(id);
     res.status(200).send(series);
   }
   static async sortAndFilteresSeries(req, res) {

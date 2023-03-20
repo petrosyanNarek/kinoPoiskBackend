@@ -19,7 +19,9 @@ const { UserController } = require("./controlers/UserController");
 const { AdminController } = require("./controlers/AdminController");
 const { User } = require("./models");
 const { Admin } = require("./models");
-const { CommentRatingController } = require("./controlers/CommentRatingController");
+const {
+  CommentRatingController,
+} = require("./controlers/CommentRatingController");
 const { CommentAnwserController } = require("./controlers/CommentAnwser");
 
 const storage = multer.diskStorage({
@@ -76,17 +78,14 @@ passport.use(
 );
 
 passport.serializeUser(function (user, done) {
-  done(null, user.id);
+  done(null, user);
 });
 
-passport.deserializeUser(async function (id, done) {
+passport.deserializeUser(async function (data, done) {
   let user = await User.findByPk(id);
   done(null, user);
 });
-// passport.deserializeUser(async function (data, done) {
-//   let user = data.verify == 0 ? await Student.findByPk(data.id) : await Teacher.findByPk(data.id);
-//   done(null, user);
-// })
+
 ////User
 app.post("/login", UserController.Login);
 app.post("/addUser", UserController.addUser);
@@ -195,6 +194,9 @@ app.put(
   FilmController.updateFilm
 );
 
+///update Film Rating
+app.put("/film/updateFilmRating", FilmController.updateFilmRating);
+
 ///Series
 app.post(
   "/series/newSeries",
@@ -232,6 +234,8 @@ app.put(
   ]),
   SeriesController.updateSeries
 );
+app.put("/series/updateFilmRating", SeriesController.updateSeriesRating);
+
 app.delete("/series/deleteSeries", SeriesController.deleteSeries);
 
 app.get("/series/getSeriesFilm", SeriesController.getSeriesByFilmId);
@@ -244,7 +248,6 @@ app.post("/comment/newComment", CommentController.newComment);
 app.delete("/comment/deleteComment", CommentController.deleteComment);
 app.put("/comment/updateComment", CommentController.updateComment);
 
-
 /////
 app.post("/commentAnwser/newComment", CommentAnwserController.newComment);
 
@@ -253,7 +256,7 @@ app.get("/filmview/add", FilmViewController.addFilmView);
 
 ////CommentRating
 app.post("/commentRating", CommentRatingController.addCommentRating);
-app.get('/commentAnwsers', CommentAnwserController.getCommentAnwser)
+app.get("/commentAnwsers", CommentAnwserController.getCommentAnwser);
 
 ///Server
 app.listen(3000);

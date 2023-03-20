@@ -2,6 +2,7 @@ const { FilmView, Film, Series } = require("../models");
 class FilmViewController {
   static async addFilmView(req, res) {
     const { film_id, ip, serial_id } = req.headers;
+    console.log(film_id, ip, serial_id);
     if (film_id) {
       const { views } = await Film.findOne({ where: { id: film_id } });
       const filmView = await FilmView.findOne({
@@ -51,6 +52,7 @@ class FilmViewController {
           view_ip: ip,
         },
       });
+
       if (!filmView) {
         await FilmView.create({
           serial_id,
@@ -85,7 +87,7 @@ class FilmViewController {
         );
       }
     }
-
+    res.status(200);
   }
   static async deleteFilmView(filmId) {
     // await FilmView.destroy({ where: { filmId } })

@@ -67,6 +67,21 @@ class FilmController {
     }
   }
 
+  static async updateFilmRating(req, res) {
+    const { id, rating } = req.body;
+    await Film.update(
+      {
+        rating,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+    res.status(200);
+  }
+
   static async updateFilm(req, res) {
     let { id, genre, country, actor, author, ...film } = req.body;
     let cardImg, trailer, video;
@@ -199,8 +214,8 @@ class FilmController {
     const sliderImgPath = getDeletedFilm.sliderImg.split("\\");
     fs.unlink(
       process.cwd() +
-      "/public/images/" +
-      sliderImgPath[sliderImgPath.length - 1],
+        "/public/images/" +
+        sliderImgPath[sliderImgPath.length - 1],
       (err) => {
         if (err) {
           return new Error(err);
@@ -280,26 +295,26 @@ class FilmController {
               include: [
                 {
                   model: User,
-                  attributes: ["fullName", "id"]
-                }
-              ]
+                  attributes: ["fullName", "id"],
+                },
+              ],
             },
             {
               model: CommentAnwsers,
               include: [
                 {
                   model: User,
-                  attributes: ["fullName", "id"]
+                  attributes: ["fullName", "id"],
                 },
                 {
                   model: CommentRating,
                   include: [
                     {
                       model: User,
-                      attributes: ["fullName", "id"]
+                      attributes: ["fullName", "id"],
                     },
-                  ]
-                }
+                  ],
+                },
               ],
             },
           ],

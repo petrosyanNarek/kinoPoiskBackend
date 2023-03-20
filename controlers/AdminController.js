@@ -1,23 +1,23 @@
 const passport = require("passport");
-const { User } = require("../models");
+const { User, Admin } = require("../models");
 const bcrypt = require("bcrypt");
 
 class AdminController {
   static async newAdmin(req, res) {
     const us = req.body;
-    const userFind = await User.findOne({ where: { email: us.email } });
+    const userFind = await Admin.findOne({ where: { email: us.email } });
     if (userFind) {
       res.send(false);
     } else {
       us.password = await bcrypt.hash(us.password, 10);
-      let result = await User.create({ ...us });
+      let result = await Admin.create({ ...us });
       res.send(true);
     }
   }
 
   static async getAdmin(req, res) {
     if (req.body.id) {
-      const user = await User.findOne({ where: { id: req.body.id } });
+      const user = await Admin.findOne({ where: { id: req.body.id } });
       if (user) {
         const { id, name, surname, email, verify } = user;
         res
@@ -32,7 +32,7 @@ class AdminController {
   }
 
   static async loginCheck(email, password, done) {
-    let user = await User.findOne({ where: { email: email } });
+    let user = await Admin.findOne({ where: { email: email } });
     if (!user) {
       return done("The email is incorrect", false);
     }
