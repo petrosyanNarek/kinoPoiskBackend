@@ -38,26 +38,19 @@ class UserController {
 
   static async LoginCheck(email, password, done) {
     let user = await User.findOne({ where: { email: email } });
-    let admin = await Admin.findOne({ where: { email: email } });
-    if (user) {
-      let result = await bcrypt.compare(password, user.password);
-      if (!result) {
-        return done("The password is incorrect", false);
-      }
-
-      return done(null, user);
-    } else if (admin) {
-      let result = await bcrypt.compare(password, admin.password);
-      if (!result) {
-        return done("The password is incorrect", false);
-      }
-
-      return done(null, admin);
+    if (!user) {
+      return done("The email is incorrect", false);
     }
-    return done("The email is incorrect", false);
+
+    let result = await bcrypt.compare(password, user.password);
+    if (!result) {
+      return done("The password is incorrect", false);
+    }
+
+    return done(null, user);
   }
   static Login(req, res, next) {
-    passport.authenticate("local", function (err, user, info) {
+    passport.authenticate("user", function (err, user, info) {
       if (user) {
         req.logIn(user, (err) => {
           if (err) {

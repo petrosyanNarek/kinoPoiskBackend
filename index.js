@@ -69,22 +69,32 @@ app.use(
   })
 );
 
-passport.use(
-  new LocalStrategy(
-    {
-      usernameField: "email",
-    },
-    UserController.LoginCheck
-  )
-);
+// passport.use(
+//   new LocalStrategy(
+//     {
+//       usernameField: "email",
+//     },
+//     UserController.LoginCheck
+//   )
+// );
 
-passport.serializeUser(function (user, done) {
+passport.use('admin', new LocalStrategy({
+  usernameField: 'email',
+}, AdminController.loginCheck));
+
+passport.use('user', new LocalStrategy({
+  usernameField: 'email',
+}, UserController.LoginCheck));
+
+
+passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-passport.deserializeUser(async function (id, done) {
-  let user = await User.findByPk(id);
-  done(null, user);
+passport.deserializeUser((id, done) => {
+  User.findById(id, (err, user) => {
+    done(err, user);
+  });
 });
 // passport.deserializeUser(async function (data, done) {
 //   let user = data.verify == 0 ? await Student.findByPk(data.id) : await Teacher.findByPk(data.id);

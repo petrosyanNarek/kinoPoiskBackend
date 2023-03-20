@@ -45,7 +45,7 @@ class AdminController {
     return done(null, user);
   }
   static login(req, res, next) {
-    passport.authenticate("local", function (err, user, info) {
+    passport.authenticate("admin", function (err, user, info) {
       if (user) {
         req.logIn(user, (err) => {
           if (err) {
