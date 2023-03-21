@@ -5,7 +5,7 @@ const cors = require("cors");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-const http = require('http');
+const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 
@@ -23,7 +23,9 @@ const { UserController } = require("./controlers/UserController");
 const { AdminController } = require("./controlers/AdminController");
 const { User } = require("./models");
 const { Admin } = require("./models");
-const { CommentRatingController } = require("./controlers/CommentRatingController");
+const {
+  CommentRatingController,
+} = require("./controlers/CommentRatingController");
 const { CommentAnwserController } = require("./controlers/CommentAnwser");
 
 const storage = multer.diskStorage({
@@ -78,14 +80,25 @@ app.use(
 //   )
 // );
 
-passport.use('admin', new LocalStrategy({
-  usernameField: 'email',
-}, AdminController.loginCheck));
+passport.use(
+  "admin",
+  new LocalStrategy(
+    {
+      usernameField: "email",
+    },
+    AdminController.loginCheck
+  )
+);
 
-passport.use('user', new LocalStrategy({
-  usernameField: 'email',
-}, UserController.LoginCheck));
-
+passport.use(
+  "user",
+  new LocalStrategy(
+    {
+      usernameField: "email",
+    },
+    UserController.LoginCheck
+  )
+);
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -96,10 +109,7 @@ passport.deserializeUser((id, done) => {
     done(err, user);
   });
 });
-// passport.deserializeUser(async function (data, done) {
-//   let user = data.verify == 0 ? await Student.findByPk(data.id) : await Teacher.findByPk(data.id);
-//   done(null, user);
-// })
+
 ////User
 app.post("/login", UserController.Login);
 app.post("/addUser", UserController.addUser);
@@ -207,7 +217,7 @@ app.put(
   ]),
   FilmController.updateFilm
 );
-
+app.put("/film/updateFilmRating", FilmController.updateFilmRating);
 ///Series
 app.post(
   "/series/newSeries",
@@ -251,12 +261,12 @@ app.get("/series/getSeriesFilm", SeriesController.getSeriesByFilmId);
 app.get("/series/getSeriesById", SeriesController.getSeriesById);
 app.get("/series/getSeries", SeriesController.getSeries);
 app.post("/series/getFilteredSeries", SeriesController.sortAndFilteresSeries);
+app.put("/series/updateFilmRating", SeriesController.updateSeriesRating);
 
 ///comment
 app.post("/comment/newComment", CommentController.newComment);
 app.delete("/comment/deleteComment", CommentController.deleteComment);
 app.put("/comment/updateComment", CommentController.updateComment);
-
 
 /////
 app.post("/commentAnwser/newComment", CommentAnwserController.newComment);
@@ -266,34 +276,28 @@ app.get("/filmview/add", FilmViewController.addFilmView);
 
 ////CommentRating
 app.post("/commentRating", CommentRatingController.addCommentRating);
-app.get('/commentAnwsers', CommentAnwserController.getCommentAnwser)
-
-
+app.get("/commentAnwsers", CommentAnwserController.getCommentAnwser);
 
 // Socet io
 
 const io = new Server(server, {
   cors: {
     origin: "*",
-    methods: ['GET', 'POST']
-  }
+    methods: ["GET", "POST"],
+  },
 });
 
-
 io.on("connection", (socket) => {
-
   socket.on("join_room", (data) => {
-    socket.join(data)
-  })
+    socket.join(data);
+  });
 
   socket.on("send_message", (data) => {
-    socket.to(data.room).emit("receive_message", data)
-  })
-})
+    socket.to(data.room).emit("receive_message", data);
+  });
+});
 
 ///Server
 server.listen(3000, () => {
-  console.log('listening on *:3000');
+  console.log("listening on *:3000");
 });
-
-

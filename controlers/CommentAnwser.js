@@ -1,71 +1,68 @@
 const { CommentAnwsers, CommentRating } = require("../models");
 
 class CommentAnwserController {
-    static async newComment(req, res) {
-        try {
-            const { comment } = req.body;
+  static async newComment(req, res) {
+    try {
+      const { comment } = req.body;
 
-            await CommentAnwsers.create(comment);
+      const newCom = await CommentAnwsers.create(comment);
 
-            res.status(200).send("created");
-        } catch (err) {
-            res.status(500).send("err");
-        }
+      res.status(200).send(newCom);
+    } catch (err) {
+      res.status(500).send("err");
     }
+  }
 
-    static async deleteComment(req, res) {
-        const { id } = req.body;
+  static async deleteComment(req, res) {
+    const { id } = req.body;
 
-        await CommentAnwsers.destroy({
-            where: { id },
-        });
+    await CommentAnwsers.destroy({
+      where: { id },
+    });
 
-        res.status(200).send("deleted");
-    }
+    res.status(200).send("deleted");
+  }
 
-    static async updateComment(req, res) {
-        const { id, comment } = req.body;
+  static async updateComment(req, res) {
+    const { id, comment } = req.body;
 
-        await CommentAnwsers.update(
-            {
-                ...comment,
-            },
-            {
-                where: {
-                    id,
-                },
-            }
-        );
+    await CommentAnwsers.update(
+      {
+        ...comment,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
 
-        res.status(200).send("updated");
-    }
+    res.status(200).send("updated");
+  }
 
-    static async updateCommentRating(commentRating, id) {
+  static async updateCommentRating(commentRating, id) {
+    await CommentAnwsers.update(
+      {
+        ...commentRating,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+  }
 
-        await CommentAnwsers.update(
-            {
-                ...commentRating,
-            },
-            {
-                where: {
-                    id,
-                },
-            }
-        );
-
-    }
-
-    static async getCommentAnwser(req, res) {
-        const a = await CommentAnwsers.findAll({
-            include: [
-                {
-                    model: CommentRating,
-                },
-            ]
-        })
-        res.send(a)
-    }
-
+  static async getCommentAnwser(req, res) {
+    const a = await CommentAnwsers.findAll({
+      include: [
+        {
+          model: CommentRating,
+        },
+      ],
+    });
+    res.send(a);
+  }
 }
 
 module.exports = { CommentAnwserController };

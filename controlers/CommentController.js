@@ -6,9 +6,9 @@ class CommentController {
       const { rating, ...comment } = req.body;
       console.log(comment);
 
-      await Comment.create(comment);
+      const commentNew = await Comment.create(comment);
 
-      res.status(200).send("created");
+      res.status(200).send(commentNew);
     } catch (err) {
       res.status(500).send("err");
     }
@@ -42,7 +42,6 @@ class CommentController {
   }
 
   static async updateCommentRating(commentRating, id) {
-
     await Comment.update(
       {
         ...commentRating,
@@ -53,9 +52,7 @@ class CommentController {
         },
       }
     );
-
   }
-
 }
 
 module.exports = { CommentController };
