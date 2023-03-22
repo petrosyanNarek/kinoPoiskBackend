@@ -86,5 +86,5 @@ module.exports = {
   FilmView,
   Admin,
   CommentRating,
-  CommentAnwsers
+  CommentAnwsers,
 };

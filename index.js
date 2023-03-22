@@ -71,15 +71,6 @@ app.use(
   })
 );
 
-// passport.use(
-//   new LocalStrategy(
-//     {
-//       usernameField: "email",
-//     },
-//     UserController.LoginCheck
-//   )
-// );
-
 passport.use(
   "admin",
   new LocalStrategy(
@@ -173,11 +164,6 @@ app.post("/author/getFilteredAuthors", AuthorController.getFilteredAuthor);
 ///Film
 app.get("/film/allFilm", FilmController.getAllFilm);
 app.get("/film/filmById", FilmController.getFilmById);
-app.get("/film/getFilteredFilms", FilmController.getFilmsBy);
-app.get("/film/filmByCategories", FilmController.getFilmByCategory);
-app.get("/film/getTopViewedFilms", FilmController.getTopViewedFilms);
-app.get("/film/topRating", FilmController.getTopRratingFilms);
-app.get("/film/recentlyAddedFilms", FilmController.getRecentlyAddedFilms);
 app.post("/film/sordAndFilter", FilmController.sortAndFilteresFilms);
 
 app.post(
@@ -192,9 +178,6 @@ app.post(
     {
       name: "video",
     },
-    // {
-    //   name: "sliderImg",
-    // },
   ]),
   FilmController.addFilm
 );
@@ -211,13 +194,11 @@ app.put(
     {
       name: "video",
     },
-    // {
-    //   name: "sliderImg",
-    // },
   ]),
   FilmController.updateFilm
 );
 app.put("/film/updateFilmRating", FilmController.updateFilmRating);
+
 ///Series
 app.post(
   "/series/newSeries",
@@ -231,9 +212,6 @@ app.post(
     {
       name: "video",
     },
-    // {
-    //   name: "sliderImg",
-    // },
   ]),
   SeriesController.addSeries
 );
@@ -249,9 +227,6 @@ app.put(
     {
       name: "video",
     },
-    // {
-    //   name: "sliderImg",
-    // },
   ]),
   SeriesController.updateSeries
 );
@@ -298,6 +273,6 @@ io.on("connection", (socket) => {
 });
 
 ///Server
-server.listen(3000, () => {
+server.listen(process.env.SERVER_PORT || 3000, () => {
   console.log("listening on *:3000");
 });

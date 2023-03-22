@@ -23,43 +23,40 @@ const fs = require("fs");
 
 class FilmController {
   static async addFilm(req, res) {
-    const { genres, countries, actors, authors, ...film } = req.body;
+    let { genres, countries, actors, authors, ...film } = req.body;
     try {
-      const cardImg = `http://localhost:3000/${req.files.cardImg[0].path}`;
-      const trailer = `http://localhost:3000/${req.files.trailer[0].path}`;
-      const video = `http://localhost:3000/${req.files.video[0].path}`;
-      // const sliderImg = `http://localhost:3000/${req.files.sliderImg[0].path}`;
+      const cardImg = req.files.cardImg[0].path;
+      const trailer = req.files.trailer[0].path;
+      const video = req.files.video[0].path;
       const newFilm = await Film.create({
         ...film,
         cardImg,
         trailer,
         video,
-        // sliderImg,
       });
-      countries.forEach((countr) => {
-        FilmCountryController.addFilmCountry({
-          filmId: newFilm.id,
-          countryId: +countr,
-        });
+
+      countries = countries.map((countr) => {
+        return { filmId: newFilm.id, countryId: +countr };
       });
-      genres.forEach((genr) => {
-        FilmGenreController.addFilmGenre({
-          filmId: newFilm.id,
-          genreId: +genr,
-        });
+
+      FilmCountryController.addFilmCountry(countries);
+      genres = genres.map((genr) => {
+        return { filmId: newFilm.id, genreId: +genr };
       });
-      actors.forEach((item) => {
-        ActorFilmController.newActorFilm({
+      FilmGenreController.addFilmGenre(genres);
+
+      actors = actors.map((item) => {
+        return {
           filmId: newFilm.id,
           actorId: +item,
-        });
+        };
       });
-      authors.forEach((item) => {
-        AuthorFilmController.newAuthorFilm({
-          filmId: newFilm.id,
-          authorId: +item,
-        });
+      ActorFilmController.newActorFilm(actors);
+
+      authors = authors.map((item) => {
+        return { filmId: newFilm.id, authorId: +item };
       });
+      AuthorFilmController.newAuthorFilm(authors);
 
       res.status(200).send("created");
     } catch (err) {
@@ -83,22 +80,81 @@ class FilmController {
   }
 
   static async updateFilm(req, res) {
-    let { id, genre, country, actor, author, ...film } = req.body;
+    let { id, genres, countries, actors, authors, ...film } = req.body;
     let cardImg, trailer, video;
-    //  sliderImg;
+
+    const filmGenres = await FilmGenreController.getAllFilmGenre(id[0]);
+    let newGenres = [];
+    for (let i = 0; i < filmGenres.length; i++) {
+      let a = genres.find((e) => e === filmGenres[i].genreId);
+      if (!a) {
+        newGenres.push(filmGenres[i].genreId);
+      }
+    }
+
+    await FilmGenreController.deleteFilmGenres(id, newGenres);
+    genres = genres.map((genr) => {
+      return { filmId: id[0], genreId: +genr };
+    });
+    await FilmGenreController.updateFilmGenres(genres);
+
+    const filmCountries = await FilmCountryController.getAllFilmCountry(id[0]);
+    let newCountries = [];
+    for (let i = 0; i < filmCountries.length; i++) {
+      let a = countries.find((e) => e === filmCountries[i].countryId);
+      if (!a) {
+        newCountries.push(filmCountries[i].countryId);
+      }
+    }
+
+    await FilmCountryController.deleteFilmCountries(id, newCountries);
+    countries = countries.map((country) => {
+      return { filmId: id[0], countryId: +country };
+    });
+    await FilmCountryController.updateFilmCountries(countries);
+
+    const filmAuthors = await AuthorFilmController.getAllAuthorFilm(id[0]);
+    let newAuthors = [];
+    for (let i = 0; i < filmAuthors.length; i++) {
+      let a = authors.find((e) => e === filmAuthors[i].authorId);
+      if (!a) {
+        newAuthors.push(filmAuthors[i].authorId);
+      }
+    }
+
+    await AuthorFilmController.deleteFilmAuthors(id, newAuthors);
+    authors = authors.map((author) => {
+      return { filmId: id[0], authorId: +author };
+    });
+    await AuthorFilmController.updateFilmAuthors(authors);
+
+    const filmActors = await ActorFilmController.getAllFilmActor(id[0]);
+    let newActor = [];
+    for (let i = 0; i < filmActors.length; i++) {
+      let a = actors.find((e) => e === filmActors[i].actorId);
+      if (!a) {
+        newActor.push(filmActors[i].actorId);
+      }
+    }
+
+    await ActorFilmController.deleteFilmCountries(id, newActor);
+    actors = actors.map((actor) => {
+      return { filmId: id[0], actorId: +actor };
+    });
+    await ActorFilmController.updateFilmCountries(actors);
+
+    res.send({ actors, filmActors, newActor });
     if (req.files.cardImg) {
-      cardImg = `http://localhost:3000/${req.files.cardImg[0].path}`;
+      cardImg = req.files.cardImg[0].path;
     }
 
     if (req.files.trailer) {
-      trailer = `http://localhost:3000/${req.files.trailer[0].path}`;
+      trailer = req.files.trailer[0].path;
     }
     if (req.files.video) {
-      video = `http://localhost:3000/${req.files.video[0].path}`;
+      video = req.files.video[0].path;
     }
-    // if (req.files.sliderImg) {
-    //   sliderImg = `http://localhost:3000/${req.files.sliderImg[0].path}`;
-    // }
+
     const getFilm = await Film.findOne({ where: { id: +id[0] } });
     if (cardImg) {
       const cardImgPath = getFilm.cardImg.split("\\");
@@ -111,19 +167,7 @@ class FilmController {
         }
       );
     }
-    // if (sliderImg) {
-    //   const sliderImgPath = getFilm.sliderImg.split("\\");
-    //   fs.unlink(
-    //     process.cwd() +
-    //       "/public/images/" +
-    //       sliderImgPath[sliderImgPath.length - 1],
-    //     (err) => {
-    //       if (err) {
-    //         return new Error(err);
-    //       }
-    //     }
-    //   );
-    // }
+
     if (trailer) {
       const trailerPath = getFilm.trailer.split("\\");
       fs.unlink(
@@ -147,34 +191,6 @@ class FilmController {
       );
     }
 
-    if (country) {
-      await FilmCountryController.deleteFilmCountry(id);
-      country.forEach((countr) => {
-        FilmCountryController.addFilmCountry({
-          filmId: id,
-          countryId: +countr,
-        });
-      });
-    }
-    if (genre) {
-      await FilmGenreController.deleteFilmGenre(id);
-      genre.forEach((genr) => {
-        FilmGenreController.addFilmGenre({ filmId: id, genreId: +genr });
-      });
-    }
-
-    if (actor) {
-      await ActorFilmController.deleteActorFilm(id);
-      actor.forEach((item) => {
-        ActorFilmController.newActorFilm({ filmId: id, actorId: +item });
-      });
-    }
-    if (author) {
-      await AuthorFilmController.deleteAuthorFilm(id);
-      author.forEach((item) => {
-        AuthorFilmController.newAuthorFilm({ filmId: id, authorId: +item });
-      });
-    }
     film = Object.fromEntries(Object.entries(film).filter(([_, v]) => v != ""));
     const updateFilm = await Film.update(
       {
@@ -182,7 +198,6 @@ class FilmController {
         cardImg,
         trailer,
         video,
-        // sliderImg,
       },
       {
         where: {
@@ -202,35 +217,21 @@ class FilmController {
         id,
       },
     });
-    const cardImgPath = getDeletedFilm.cardImg.split("\\");
-    fs.unlink(
-      process.cwd() + "/public/images/" + cardImgPath[cardImgPath.length - 1],
-      (err) => {
-        if (err) {
-          return new Error(err);
-        }
+    fs.unlink(process.cwd() + getDeletedFilm.cardImg, (err) => {
+      if (err) {
+        return new Error(err);
       }
-    );
-    const sliderImgPath = getDeletedFilm.sliderImg.split("\\");
-    fs.unlink(
-      process.cwd() +
-        "/public/images/" +
-        sliderImgPath[sliderImgPath.length - 1],
-      (err) => {
-        if (err) {
-          return new Error(err);
-        }
+    });
+    fs.unlink(process.cwd() + getDeletedFilm.trailer, (err) => {
+      if (err) {
+        return new Error(err);
       }
-    );
-    const trailerPath = getDeletedFilm.trailer.split("\\");
-    fs.unlink(
-      process.cwd() + "/public/video/" + trailerPath[trailerPath.length - 1],
-      (err) => {
-        if (err) {
-          return new Error(err);
-        }
+    });
+    fs.unlink(process.cwd() + getDeletedFilm.video, (err) => {
+      if (err) {
+        return new Error(err);
       }
-    );
+    });
 
     const deletedFilm = await Film.destroy({
       where: {
@@ -247,7 +248,9 @@ class FilmController {
   static async getAllFilm(req, res) {
     const films = await Film.findAll({
       where: {
-        categoryId: 1,
+        categoryId: {
+          [Op.or]: [2, 3],
+        },
       },
       include: [
         { model: Genre, required: true },
@@ -326,115 +329,6 @@ class FilmController {
     } else {
       res.status(404).send("Not Found");
     }
-  }
-
-  static async getFilmsBy(req, res) {
-    const { filterBy } = req.body;
-    const film = await Film.findAll({
-      where: filterBy,
-      include: [
-        { model: Genre, required: true },
-        { model: Country, required: true },
-      ],
-    });
-    if (film) {
-      res.status(200).send(film);
-    } else {
-      res.status(404).send("Not Found");
-    }
-  }
-
-  static async getTopViewedFilms(req, res) {
-    const { page, limit } = pageLimitChek(req.headers.page, req.headers.limit);
-    const films = await Film.findAll({
-      where: {
-        views: {
-          [Op.gte]: 21005,
-        },
-      },
-    });
-    const topViewedFilms = await Film.findAll({
-      where: {
-        views: {
-          [Op.gte]: 21005,
-        },
-      },
-      include: [
-        { model: Genre, required: true },
-        { model: Country, required: true },
-      ],
-      limit,
-      offset: page,
-    });
-    res.status(200).send({
-      film: topViewedFilms,
-      totoalFilmCount: films.length,
-      totalPageCount: Math.ceil(films.length / limit),
-    });
-  }
-  static async getTopRratingFilms(req, res) {
-    const { page, limit } = pageLimitChek(req.headers.page, req.headers.limit);
-    const films = await Film.findAll({
-      where: {
-        rating: 5,
-      },
-    });
-    const topRatingFilms = await Film.findAll({
-      where: {
-        rating: 5,
-      },
-      include: [
-        { model: Genre, required: true },
-        { model: Country, required: true },
-      ],
-      limit,
-      offset: page,
-    });
-    res.status(200).send({
-      films: topRatingFilms,
-      totoalFilmCount: films.length,
-      totalPageCount: Math.ceil(films.length / limit),
-    });
-  }
-  static async getRecentlyAddedFilms(req, res) {
-    const { page, limit } = pageLimitChek(req.headers.page, req.headers.limit);
-    const films = await Film.findAll();
-    const topRecentlyAddedFilms = await Film.findAll({
-      order: [["createdAt", "DESC"]],
-      include: [
-        { model: Genre, required: true },
-        { model: Country, required: true },
-      ],
-      limit,
-      offset: page,
-    });
-    res.status(200).send({
-      films: topRecentlyAddedFilms,
-      totoalFilmCount: films.length,
-      totalPageCount: Math.ceil(films.length / limit),
-    });
-  }
-
-  static async getFilmByCategory(req, res) {
-    const { category_id } = req.headers;
-    const { page, limit } = pageLimitChek(req.headers.page, req.headers.limit);
-    const films = await Film.findAll({
-      where: {
-        categoryId: category_id,
-      },
-    });
-    const filmByCategory = await Film.findAll({
-      where: {
-        categoryId: category_id,
-      },
-      limit,
-      offset: page,
-    });
-    res.status(200).send({
-      films: filmByCategory,
-      totoalFilmCount: films.length,
-      totalPageCount: Math.ceil(films.length / limit),
-    });
   }
 
   static async sortAndFilteresFilms(req, res) {

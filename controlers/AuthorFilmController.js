@@ -1,17 +1,29 @@
 const { AuthorFilm } = require("../models");
 
 class AuthorFilmController {
-    static async newAuthorFilm(authorFilm) {
-        await AuthorFilm.create(authorFilm)
-    }
-
-    static async deleteAuthorFilm(filmId) {
-        await AuthorFilm.destroy({
-            where: {
-                filmId
-            }
-        })
-    }
+  static async addFilmCountry(authorFilm) {
+    await AuthorFilm.bulkCreate(authorFilm);
+  }
+  static async getAllAuthorFilm(filmId) {
+    return await AuthorFilm.findAll({
+      where: {
+        filmId,
+      },
+    });
+  }
+  static async deleteFilmAuthors(filmId, authors) {
+    await AuthorFilm.destroy({
+      where: {
+        filmId,
+        authorId: authors,
+      },
+    });
+  }
+  static async updateFilmAuthors(authorFilm) {
+    await AuthorFilm.bulkCreate(authorFilm, {
+      updateOnDuplicate: ["filmId", "authorId"],
+    });
+  }
 }
 
-module.exports = { AuthorFilmController }
+module.exports = { AuthorFilmController };

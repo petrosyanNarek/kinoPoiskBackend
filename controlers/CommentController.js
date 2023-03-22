@@ -4,7 +4,6 @@ class CommentController {
   static async newComment(req, res) {
     try {
       const { rating, ...comment } = req.body;
-      console.log(comment);
 
       const commentNew = await Comment.create(comment);
 

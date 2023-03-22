@@ -89,8 +89,5 @@ class FilmViewController {
     }
     res.status(200);
   }
-  static async deleteFilmView(filmId) {
-    // await FilmView.destroy({ where: { filmId } })
-  }
 }
 module.exports = { FilmViewController };

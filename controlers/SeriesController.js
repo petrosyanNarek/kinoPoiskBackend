@@ -52,48 +52,36 @@ class SeriesController {
     let { id, ...seria } = req.body;
     let cardImg, trailer, video;
     if (req.files.cardImg) {
-      cardImg = `http://localhost:3000/${req.files.cardImg[0].path}`;
+      cardImg = req.files.cardImg[0].path;
     }
 
     if (req.files.trailer) {
-      trailer = `http://localhost:3000/${req.files.trailer[0].path}`;
+      trailer = req.files.trailer[0].path;
     }
     if (req.files.video) {
-      video = `http://localhost:3000/${req.files.video[0].path}`;
+      video = req.files.video[0].path;
     }
     const getSeries = await Series.findOne({ where: { id: +id[0] } });
     if (cardImg) {
-      const cardImgPath = getSeries.cardImg.split("\\");
-      fs.unlink(
-        process.cwd() + "/public/images/" + cardImgPath[cardImgPath.length - 1],
-        (err) => {
-          if (err) {
-            return new Error(err);
-          }
+      fs.unlink(process.cwd() + getSeries.cardImg, (err) => {
+        if (err) {
+          return new Error(err);
         }
-      );
+      });
     }
     if (trailer) {
-      const trailerPath = getSeries.trailer.split("\\");
-      fs.unlink(
-        process.cwd() + "/public/video/" + trailerPath[trailerPath.length - 1],
-        (err) => {
-          if (err) {
-            return new Error(err);
-          }
+      fs.unlink(process.cwd() + getSeries.trailer, (err) => {
+        if (err) {
+          return new Error(err);
         }
-      );
+      });
     }
     if (video) {
-      const videoPath = getSeries.video.split("\\");
-      fs.unlink(
-        process.cwd() + "/public/video/" + videoPath[videoPath.length - 1],
-        (err) => {
-          if (err) {
-            return new Error(err);
-          }
+      fs.unlink(process.cwd() + getSeries.video, (err) => {
+        if (err) {
+          return new Error(err);
         }
-      );
+      });
     }
 
     seria = Object.fromEntries(

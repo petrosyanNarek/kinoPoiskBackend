@@ -10,7 +10,7 @@ class AdminController {
       res.send(false);
     } else {
       us.password = await bcrypt.hash(us.password, 10);
-      let result = await Admin.create({ ...us });
+      await Admin.create({ ...us });
       res.send(true);
     }
   }
