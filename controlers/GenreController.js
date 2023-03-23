@@ -7,10 +7,10 @@ class GenreController {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).send(errors.array()[0].msg);
+        return res.status(400).end(errors.array()[0].msg)
       }
-      const data = req.body.genre;
-      await Genre.create(data);
+      // const data = req.body.genre;
+      // await Genre.create(data);
       return res.status(200).send("created");
     } catch {
       return res.status(500).send("Network Error");

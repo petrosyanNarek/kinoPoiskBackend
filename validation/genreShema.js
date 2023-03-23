@@ -1,17 +1,11 @@
-const { checkSchema, validationResult } = require("express-validator");
-
+const { body } = require("express-validator");
+const { text } = require("./regexpValidation");
 module.exports = () => {
-  console.log("klk");
-  return checkSchema({
-    name: {
-      in: ["body"],
-      isString: {
-        errorMessage: "Genres name  should be at a string ",
-      },
-      isLength: {
-        errorMessage: "Genres name should be at least 3 chars long",
-        options: { min: 3 },
-      },
-    },
-  });
+  return [
+    body("name")
+      .matches(text)
+      .withMessage("Only alphabets are allowed and first letter must been to upper case")
+      .isLength({ min: 5, max: 50 })
+      .withMessage("Genre must be between 3 and 50 characters"),
+  ]
 };
