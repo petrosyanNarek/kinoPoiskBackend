@@ -339,6 +339,7 @@ class FilmController {
       const sortOrder = req.body.sortOrder || "DESC";
       const filterValue = req.body.filterValue || "";
       const categoryId = req.body.categoryId || "";
+
       const genres = checkAndReplace(req.body.genres);
       includeFilterItems = checkIncludeFilterItems(
         includeFilterItems,
