@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { AuthorFilm } = require("../models");
 
 class AuthorFilmController {
@@ -15,7 +16,9 @@ class AuthorFilmController {
     await AuthorFilm.destroy({
       where: {
         filmId,
-        authorId: authors,
+        authorId: {
+          [Op.ne]: authors,
+        },
       },
     });
   }

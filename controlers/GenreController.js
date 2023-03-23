@@ -1,14 +1,19 @@
+const { validationResult } = require("express-validator");
 const { Genre, Film } = require("../models");
 const pageLimitChek = require("./hooks/pageLimitChek");
 const sortBySearchBy = require("./hooks/sortBySearchBy");
 class GenreController {
   static async addGenre(req, res) {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).send(errors.array()[0].msg);
+      }
       const data = req.body.genre;
       await Genre.create(data);
-      res.send("created");
+      return res.status(200).send("created");
     } catch {
-      res.status(404);
+      return res.status(500).send("Network Error");
     }
   }
   static async deleteGenre(req, res) {

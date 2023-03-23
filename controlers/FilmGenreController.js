@@ -15,7 +15,9 @@ class FilmGenreController {
     await FilmGenre.destroy({
       where: {
         filmId,
-        genreId: genres,
+        genreId: {
+          [Op.ne]: genres,
+        },
       },
     });
   }

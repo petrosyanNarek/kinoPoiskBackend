@@ -13,9 +13,9 @@ class SeriesController {
   static async addSeries(req, res) {
     const { ...series } = req.body;
     try {
-      const cardImg = `http://localhost:3000/${req.files.cardImg[0].path}`;
-      const trailer = `http://localhost:3000/${req.files.trailer[0].path}`;
-      const video = `http://localhost:3000/${req.files.video[0].path}`;
+      const cardImg = req.files.cardImg[0].path;
+      const trailer = req.files.trailer[0].path;
+      const video = req.files.video[0].path;
       await Series.create({ ...series, cardImg, trailer, video });
       res.status(200).send("created");
     } catch (err) {

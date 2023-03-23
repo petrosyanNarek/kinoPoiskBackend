@@ -23,10 +23,12 @@ const { UserController } = require("./controlers/UserController");
 const { AdminController } = require("./controlers/AdminController");
 const { User } = require("./models");
 const { Admin } = require("./models");
+
 const {
   CommentRatingController,
 } = require("./controlers/CommentRatingController");
 const { CommentAnwserController } = require("./controlers/CommentAnwser");
+const genreShema = require("./validation/genreShema");
 
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
@@ -92,13 +94,7 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser((id, done) => {
-  User.findById(id, (err, user) => {
-    done(err, user);
-  });
+  done(null, user);
 });
 
 ////User
@@ -128,7 +124,7 @@ app.put("/category/updateCategory", CategoryController.updateCategory);
 app.get("/genre/allGenre", GenreController.getAllGenre);
 app.get("/genre/getGenreById", GenreController.getGenreById);
 app.get("/genre/getGenreFilm", GenreController.getFilmByGenre);
-app.post("/genre/newGenre", GenreController.addGenre);
+app.post("/genre/newGenre", genreShema(), GenreController.addGenre);
 app.post("/genre/getFilteredGenre", GenreController.getFilteredGenres);
 app.delete("/genre/deleteGenre", GenreController.deleteGenre);
 app.put("/genre/updateGenre", GenreController.updateGenre);

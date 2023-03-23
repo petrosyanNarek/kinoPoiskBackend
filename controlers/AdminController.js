@@ -22,7 +22,7 @@ class AdminController {
         const { id, name, surname, email, verify } = user;
         res
           .status(200)
-          .send({ user: user ? { id, name, surname, email, verify } : {} });
+          .send({ user: user ? { id, name, surname, verify } : {} });
       } else {
         res.status(200).send({ user: null });
       }
@@ -44,6 +44,7 @@ class AdminController {
 
     return done(null, user);
   }
+
   static login(req, res, next) {
     passport.authenticate("admin", function (err, user, info) {
       if (user) {

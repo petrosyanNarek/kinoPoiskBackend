@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { FilmCountry } = require("../models");
 class FilmCountryController {
   static async addFilmCountry(filmCountry) {
@@ -14,7 +15,9 @@ class FilmCountryController {
     await FilmCountry.destroy({
       where: {
         filmId,
-        countryId: country,
+        countryId: {
+          [Op.ne]: country,
+        },
       },
     });
   }
