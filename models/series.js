@@ -18,9 +18,6 @@ module.exports = (sequelize, Sequelize) => {
       cardImg: {
         type: Sequelize.STRING,
       },
-      sliderImg: {
-        type: Sequelize.STRING,
-      },
       trailer: {
         type: Sequelize.STRING,
       },
