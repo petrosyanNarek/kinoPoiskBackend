@@ -1,3 +1,4 @@
+const { validationResult } = require("express-validator");
 const { Category } = require("../models");
 const pageLimitChek = require("./hooks/pageLimitChek");
 const sortBySearchBy = require("./hooks/sortBySearchBy");
@@ -11,56 +12,95 @@ class CategoryController {
   static async getCategoryById(req, res) {
     const { id } = req.headers;
     const category = await Category.findOne({ where: { id } });
-    res.status(200).send(category);
+    return res.status(200).send(category);
   }
   static async addCategory(req, res) {
-    const { category } = req.body;
-
-    await Category.create(category);
-    res.status(200).send("created");
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).end(errors.array()[0].msg);
+      }
+      const name = req.body.name;
+      await Category.create({ name });
+      return res.status(200).send("created");
+    } catch (e) {
+      return res.status(505).send("Network Error");
+    }
   }
 
   static async deleteCategory(req, res) {
-    const { id } = req.body;
-
-    await Category.destroy({
-      where: {
-        id,
-      },
-    });
-    res.status(200).send({ mes: "deleted" });
+    try {
+      const id = req.body.id;
+      const deletedItem = await Category.destroy({
+        where: {
+          id,
+        },
+      });
+      if (deletedItem) {
+        return res.status(200).send("deleted");
+      } else {
+        return res.status(404).send("Not found");
+      }
+    } catch {
+      return res.status(505).send("Network Error");
+    }
   }
 
   static async updateCategory(req, res) {
-    const { id, category } = req.body;
-    await Category.update(category, {
-      where: {
-        id,
-      },
-    });
-
-    res.status(200).send("updated");
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).end(errors.array()[0].msg);
+      }
+      const { id, name } = req.body;
+      await await Category.update(
+        {
+          name,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+      return res.status(200).send("updated");
+    } catch {
+      return res.status(505).send("Net Work Error");
+    }
   }
   static async getFilteredCategories(req, res) {
-    const { page, limit } = pageLimitChek(req.body.page, req.body.limit);
-    const sortBy = req.body.sortBy || "createdAt";
-    const sortOrder = req.body.sortOrder || "DESC";
-    const filterValue = req.body.filterValue || "";
-    const attributes = Object.keys(Category.rawAttributes);
+    try {
+      const { page, limit } = pageLimitChek(req.body.page, req.body.limit);
+      const sortBy = req.body.sortBy || "createdAt";
+      const sortOrder = req.body.sortOrder || "DESC";
+      const filterValue = req.body.filterValue || "";
+      const attributes = Object.keys(Category.rawAttributes);
 
-    const options = sortBySearchBy(sortBy, sortOrder, attributes, filterValue);
+      const options = sortBySearchBy(
+        sortBy,
+        sortOrder,
+        attributes,
+        filterValue
+      );
 
-    const results = await Category.findAll(options);
-    let categories = await Category.findAll({
-      ...options,
-      limit,
-      offset: page,
-    });
-    res.status(200).send({
-      categories,
-      totoalActorsCount: results.length,
-      totalPageCount: Math.ceil(results.length / limit),
-    });
+      const results = await Category.findAll(options);
+      let categories = await Category.findAll({
+        ...options,
+        limit,
+        offset: page,
+      });
+      if (results) {
+        return res.status(200).send({
+          categories,
+          totoalActorsCount: results.length,
+          totalPageCount: Math.ceil(results.length / limit),
+        });
+      } else {
+        return res.status(404).send("Not found");
+      }
+    } catch {
+      return res.status(505).send("Network Error");
+    }
   }
 }
 

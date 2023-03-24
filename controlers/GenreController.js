@@ -7,13 +7,13 @@ class GenreController {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).end(errors.array()[0].msg)
+        return res.status(400).end(errors.array()[0].msg);
       }
-      // const data = req.body.genre;
-      // await Genre.create(data);
+      const name = req.body.name;
+      await Genre.create({ name });
       return res.status(200).send("created");
-    } catch {
-      return res.status(500).send("Network Error");
+    } catch (e) {
+      return res.status(505).send("Network Error");
     }
   }
   static async deleteGenre(req, res) {
@@ -25,20 +25,24 @@ class GenreController {
         },
       });
       if (deletedGenre) {
-        res.status(200).send("deleted");
+        return res.status(200).send("deleted");
       } else {
-        res.status(404).send("Not found");
+        return res.status(404).send("Not found");
       }
     } catch {
-      res.status(404);
+      return res.status(505).send("Network Error");
     }
   }
   static async updateGenre(req, res) {
     try {
-      const { id, genre } = req.body;
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).end(errors.array()[0].msg);
+      }
+      const { id, name } = req.body;
       await Genre.update(
         {
-          ...genre,
+          name,
         },
         {
           where: {
@@ -46,27 +50,31 @@ class GenreController {
           },
         }
       );
-      res.status(200).send("updated");
+      return res.status(200).send("updated");
     } catch {
-      res.status(404).send("Not Found");
+      return res.status(505).send("Net Work Error");
     }
   }
   static async getAllGenre(req, res) {
     try {
       const allGenre = await Genre.findAll();
-      res.status(200).send(allGenre);
+      return res.status(200).send(allGenre);
     } catch {
-      res.status(404);
+      return res.status(404);
     }
   }
   static async getGenreById(req, res) {
-    const { id } = req.headers;
-    const genre = await Genre.findOne({
-      where: {
-        id,
-      },
-    });
-    res.status(200).send(genre);
+    try {
+      const { id } = req.headers;
+      const genre = await Genre.findOne({
+        where: {
+          id,
+        },
+      });
+      return res.status(200).send(genre);
+    } catch {
+      return res.status(500).send("Network Error");
+    }
   }
   static async getFilteredGenres(req, res) {
     const { page, limit } = pageLimitChek(req.body.page, req.body.limit);
@@ -83,7 +91,7 @@ class GenreController {
       limit,
       offset: page,
     });
-    res.status(200).send({
+    return res.status(200).send({
       genres,
       totoalActorsCount: results.length,
       totalPageCount: Math.ceil(results.length / limit),
@@ -99,7 +107,7 @@ class GenreController {
       include: [{ model: Film, required: true }],
     });
 
-    res.status(200).send(genresFilm);
+    return res.status(200).send(genresFilm);
   }
 }
 

@@ -28,7 +28,9 @@ const {
   CommentRatingController,
 } = require("./controlers/CommentRatingController");
 const { CommentAnwserController } = require("./controlers/CommentAnwser");
-const genreShema = require("./validation/genreShema");
+const { checkSchema } = require("express-validator");
+const validShema = require("./validation/validShema");
+const { text, country } = require("./validation/regexpValidation");
 
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
@@ -112,33 +114,69 @@ app.post("/logOutAdmin", AdminController.logout);
 ///Category
 app.get("/category/allCategory", CategoryController.getAllCategory);
 app.get("/category/getCategoryById", CategoryController.getCategoryById);
-app.post("/category/newCategory", CategoryController.addCategory);
+app.post(
+  "/category/newCategory",
+  checkSchema(validShema.add("Category")),
+  CategoryController.addCategory
+);
 app.post(
   "/category/getFilteredCategories",
   CategoryController.getFilteredCategories
 );
 app.delete("/category/deleteCategory", CategoryController.deleteCategory);
-app.put("/category/updateCategory", CategoryController.updateCategory);
+app.put(
+  "/category/updateCategory",
+  checkSchema(validShema.eddit("Category")),
+  CategoryController.updateCategory
+);
 
 ///Genre
 app.get("/genre/allGenre", GenreController.getAllGenre);
 app.get("/genre/getGenreById", GenreController.getGenreById);
 app.get("/genre/getGenreFilm", GenreController.getFilmByGenre);
-app.post("/genre/newGenre", genreShema(), GenreController.addGenre);
+app.post(
+  "/genre/newGenre",
+  checkSchema(validShema.add("Genre")),
+  GenreController.addGenre
+);
 app.post("/genre/getFilteredGenre", GenreController.getFilteredGenres);
 app.delete("/genre/deleteGenre", GenreController.deleteGenre);
-app.put("/genre/updateGenre", GenreController.updateGenre);
+app.put(
+  "/genre/updateGenre",
+  checkSchema(validShema.eddit("Genre")),
+  GenreController.updateGenre
+);
 
 ///Country
 app.get("/country/allCountry", CountryController.getAllCountry);
 app.get("/country/getCountryById", CountryController.getCountryById);
-app.post("/country/newCountry", CountryController.addCountry);
+app.post(
+  "/country/newCountry",
+  checkSchema(
+    validShema.add("Country", 2, {
+      test: country,
+      message:
+        "Only alphabets are allowed and all letter must been to upper case",
+    })
+  ),
+  CountryController.addCountry
+);
 app.post(
   "/country/getFilteredCountries",
   CountryController.getFilteredCountries
 );
 app.delete("/country/deleteCountry", CountryController.deleteCountry);
-app.put("/country/updateCountry", CountryController.updateCountry);
+app.put(
+  "/country/updateCountry",
+  checkSchema(
+    validShema.eddit("Country", 2, 15, {
+      test: country,
+      message:
+        "Only alphabets are allowed and all letter must been to upper case",
+    })
+  ),
+  CountryController.updateCountry
+);
 
 ///actor
 app.post("/actor/addActor", ActorController.addActor);
