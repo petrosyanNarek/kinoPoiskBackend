@@ -2,7 +2,7 @@ const { Op } = require("sequelize");
 const { AuthorFilm } = require("../models");
 
 class AuthorFilmController {
-  static async addFilmCountry(authorFilm) {
+  static async newAuthorFilm(authorFilm) {
     await AuthorFilm.bulkCreate(authorFilm);
   }
   static async getAllAuthorFilm(filmId) {

@@ -20,47 +20,58 @@ const checkIncludeFilterItems = require("./hooks/checkIncludeFilterItems");
 const pageLimitChek = require("./hooks/pageLimitChek");
 const sortBySearchBy = require("./hooks/sortBySearchBy");
 const fs = require("fs");
+const { validationResult } = require("express-validator");
 
 class FilmController {
   static async addFilm(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).end(errors.array()[0].msg);
+    }
     let { genres, countries, actors, authors, ...film } = req.body;
-    try {
+    if (req.files.cardImg && req.files.trailer && req.files.video) {
       const cardImg = req.files.cardImg[0].path;
       const trailer = req.files.trailer[0].path;
       const video = req.files.video[0].path;
-      const newFilm = await Film.create({
-        ...film,
-        cardImg,
-        trailer,
-        video,
-      });
 
-      countries = countries.map((countr) => {
-        return { filmId: newFilm.id, countryId: +countr };
-      });
+      if (countries && actors && authors && genres) {
+        const newFilm = await Film.create({
+          ...film,
+          cardImg,
+          trailer,
+          video,
+        });
+        countries = countries.map((countr) => {
+          return { filmId: newFilm.id, countryId: +countr };
+        });
 
-      FilmCountryController.addFilmCountry(countries);
-      genres = genres.map((genr) => {
-        return { filmId: newFilm.id, genreId: +genr };
-      });
-      FilmGenreController.addFilmGenre(genres);
+        await FilmCountryController.addFilmCountry(countries);
+        genres = genres.map((genr) => {
+          return { filmId: newFilm.id, genreId: +genr };
+        });
+        await FilmGenreController.addFilmGenre(genres);
 
-      actors = actors.map((item) => {
-        return {
-          filmId: newFilm.id,
-          actorId: +item,
-        };
-      });
-      ActorFilmController.newActorFilm(actors);
+        actors = actors.map((item) => {
+          return {
+            filmId: newFilm.id,
+            actorId: +item,
+          };
+        });
+        await ActorFilmController.newActorFilm(actors);
 
-      authors = authors.map((item) => {
-        return { filmId: newFilm.id, authorId: +item };
-      });
-      AuthorFilmController.newAuthorFilm(authors);
+        authors = authors.map((item) => {
+          return { filmId: newFilm.id, authorId: +item };
+        });
+        await AuthorFilmController.newAuthorFilm(authors);
 
-      res.status(200).send("created");
-    } catch (err) {
-      res.status(500).send("Error 500");
+        return res.status(200).send("created");
+      } else {
+        return res
+          .status(400)
+          .send("Not valide genres, countries, actors or authors");
+      }
+    } else {
+      return res.status(400).send("Not valide image , video or trailer");
     }
   }
 
@@ -82,6 +93,9 @@ class FilmController {
   static async updateFilm(req, res) {
     let { id, genres, countries, actors, authors, ...film } = req.body;
     let cardImg, trailer, video;
+    if (!errors.isEmpty()) {
+      return res.status(400).end(errors.array()[0].msg);
+    }
 
     await FilmGenreController.deleteFilmGenres(id, genres);
     genres = genres.map((genr) => {

@@ -21,16 +21,16 @@ const { CommentController } = require("./controlers/CommentController");
 const { FilmViewController } = require("./controlers/FilmViewController");
 const { UserController } = require("./controlers/UserController");
 const { AdminController } = require("./controlers/AdminController");
-const { User } = require("./models");
-const { Admin } = require("./models");
 
 const {
   CommentRatingController,
 } = require("./controlers/CommentRatingController");
 const { CommentAnwserController } = require("./controlers/CommentAnwser");
 const { checkSchema } = require("express-validator");
-const validShema = require("./validation/validShema");
-const { text, country } = require("./validation/regexpValidation");
+const regexpValidation = require("./validation/regexpValidation");
+const anyTablesValidShema = require("./validation/anyTablesValidShema");
+const actorAuthorValidation = require("./validation/actorAuthorValidation");
+const filmValidation = require("./validation/filmValidation");
 
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
@@ -116,7 +116,7 @@ app.get("/category/allCategory", CategoryController.getAllCategory);
 app.get("/category/getCategoryById", CategoryController.getCategoryById);
 app.post(
   "/category/newCategory",
-  checkSchema(validShema.add("Category")),
+  checkSchema(anyTablesValidShema.add("Category")),
   CategoryController.addCategory
 );
 app.post(
@@ -126,7 +126,7 @@ app.post(
 app.delete("/category/deleteCategory", CategoryController.deleteCategory);
 app.put(
   "/category/updateCategory",
-  checkSchema(validShema.eddit("Category")),
+  checkSchema(anyTablesValidShema.eddit("Category")),
   CategoryController.updateCategory
 );
 
@@ -136,14 +136,14 @@ app.get("/genre/getGenreById", GenreController.getGenreById);
 app.get("/genre/getGenreFilm", GenreController.getFilmByGenre);
 app.post(
   "/genre/newGenre",
-  checkSchema(validShema.add("Genre")),
+  checkSchema(anyTablesValidShema.add("Genre")),
   GenreController.addGenre
 );
 app.post("/genre/getFilteredGenre", GenreController.getFilteredGenres);
 app.delete("/genre/deleteGenre", GenreController.deleteGenre);
 app.put(
   "/genre/updateGenre",
-  checkSchema(validShema.eddit("Genre")),
+  checkSchema(anyTablesValidShema.eddit("Genre")),
   GenreController.updateGenre
 );
 
@@ -153,10 +153,9 @@ app.get("/country/getCountryById", CountryController.getCountryById);
 app.post(
   "/country/newCountry",
   checkSchema(
-    validShema.add("Country", 2, {
-      test: country,
-      message:
-        "Only alphabets are allowed and all letter must been to upper case",
+    anyTablesValidShema.add("Country", 2, {
+      test: regexpValidation.country.reg,
+      message: regexpValidation.country.message,
     })
   ),
   CountryController.addCountry
@@ -169,27 +168,42 @@ app.delete("/country/deleteCountry", CountryController.deleteCountry);
 app.put(
   "/country/updateCountry",
   checkSchema(
-    validShema.eddit("Country", 2, 15, {
-      test: country,
-      message:
-        "Only alphabets are allowed and all letter must been to upper case",
+    anyTablesValidShema.eddit("Country", 2, {
+      test: regexpValidation.country.reg,
+      message: regexpValidation.country.message,
     })
   ),
   CountryController.updateCountry
 );
 
 ///actor
-app.post("/actor/addActor", ActorController.addActor);
+app.post(
+  "/actor/addActor",
+  checkSchema(actorAuthorValidation.add("Actor")),
+  ActorController.addActor
+);
 app.post("/actor/getFilteredActors", ActorController.getFilteredActor);
 app.delete("/actor/deleteActor", ActorController.deleteActor);
-app.put("/actor/updateActor", ActorController.updateActor);
+app.put(
+  "/actor/updateActor",
+  checkSchema(actorAuthorValidation.eddit("Actor")),
+  ActorController.updateActor
+);
 app.get("/actor/getActor", ActorController.getActorById);
 app.get("/actor/allActors", ActorController.getAllActors);
 
 ///author
-app.post("/author/addAuthor", AuthorController.addAuthor);
+app.post(
+  "/author/addAuthor",
+  checkSchema(actorAuthorValidation.add("Author")),
+  AuthorController.addAuthor
+);
 app.delete("/author/deleteAuthor", AuthorController.deleteAuthor);
-app.put("/author/updateAuthor", AuthorController.updateAuthor);
+app.put(
+  "/author/updateAuthor",
+  checkSchema(actorAuthorValidation.add("Author")),
+  AuthorController.updateAuthor
+);
 
 app.get("/author/getAuthor", AuthorController.getAuthorById);
 app.get("/author/allAuthors", AuthorController.getAllAuthor);
@@ -213,6 +227,7 @@ app.post(
       name: "video",
     },
   ]),
+  checkSchema(filmValidation.add("Film")),
   FilmController.addFilm
 );
 app.delete("/film/deleteFilm", FilmController.deleteFilm);
@@ -229,6 +244,7 @@ app.put(
       name: "video",
     },
   ]),
+  checkSchema(filmValidation.add("Film", true)),
   FilmController.updateFilm
 );
 app.put("/film/updateFilmRating", FilmController.updateFilmRating);
