@@ -21,6 +21,9 @@ const pageLimitChek = require("./hooks/pageLimitChek");
 const sortBySearchBy = require("./hooks/sortBySearchBy");
 const fs = require("fs");
 const { validationResult } = require("express-validator");
+const chekValidation = require("./hooks/chekValidation");
+const unlinkFile = require("./hooks/unlinkFiles");
+const unlinkFiles = require("./hooks/unlinkFiles");
 
 class FilmController {
   static async addFilm(req, res) {
@@ -35,37 +38,45 @@ class FilmController {
       const video = req.files.video[0].path;
 
       if (countries && actors && authors && genres) {
-        const newFilm = await Film.create({
-          ...film,
-          cardImg,
-          trailer,
-          video,
-        });
-        countries = countries.map((countr) => {
-          return { filmId: newFilm.id, countryId: +countr };
-        });
+        if (await chekValidation(genres, Genre) && await chekValidation(countries, Country) && await chekValidation(actors, Actor) && await chekValidation(authors, Author)) {
+          const newFilm = await Film.create({
+            ...film,
+            cardImg,
+            trailer,
+            video,
+          });
+          countries = countries.map((countr) => {
+            return { filmId: newFilm.id, countryId: +countr };
+          });
 
-        await FilmCountryController.addFilmCountry(countries);
-        genres = genres.map((genr) => {
-          return { filmId: newFilm.id, genreId: +genr };
-        });
-        await FilmGenreController.addFilmGenre(genres);
+          await FilmCountryController.addFilmCountry(countries);
+          genres = genres.map((genr) => {
+            return { filmId: newFilm.id, genreId: +genr };
+          });
+          await FilmGenreController.addFilmGenre(genres);
 
-        actors = actors.map((item) => {
-          return {
-            filmId: newFilm.id,
-            actorId: +item,
-          };
-        });
-        await ActorFilmController.newActorFilm(actors);
+          actors = actors.map((item) => {
+            return {
+              filmId: newFilm.id,
+              actorId: +item,
+            };
+          });
+          await ActorFilmController.newActorFilm(actors);
 
-        authors = authors.map((item) => {
-          return { filmId: newFilm.id, authorId: +item };
-        });
-        await AuthorFilmController.newAuthorFilm(authors);
+          authors = authors.map((item) => {
+            return { filmId: newFilm.id, authorId: +item };
+          });
+          await AuthorFilmController.newAuthorFilm(authors);
 
-        return res.status(200).send("created");
+          return res.status(200).send("created");
+        } else {
+
+          return res
+            .status(400)
+            .send("Not valide genres, countries, actors or authors");
+        }
       } else {
+        unlinkFiles([cardImg, video, trailer])
         return res
           .status(400)
           .send("Not valide genres, countries, actors or authors");
@@ -91,99 +102,104 @@ class FilmController {
   }
 
   static async updateFilm(req, res) {
-    let { id, genres, countries, actors, authors, ...film } = req.body;
-    let cardImg, trailer, video;
-    if (!errors.isEmpty()) {
-      return res.status(400).end(errors.array()[0].msg);
-    }
-
-    await FilmGenreController.deleteFilmGenres(id, genres);
-    genres = genres.map((genr) => {
-      return { filmId: id[0], genreId: +genr };
-    });
-    await FilmGenreController.updateFilmGenres(genres);
-
-    await FilmCountryController.deleteFilmCountries(id, countries);
-    countries = countries.map((country) => {
-      return { filmId: id[0], countryId: +country };
-    });
-    await FilmCountryController.updateFilmCountries(countries);
-
-    await AuthorFilmController.deleteFilmAuthors(id, authors);
-    authors = authors.map((author) => {
-      return { filmId: id[0], authorId: +author };
-    });
-    await AuthorFilmController.updateFilmAuthors(authors);
-
-    await ActorFilmController.deleteFilmCountries(id, actors);
-    actors = actors.map((actor) => {
-      return { filmId: id[0], actorId: +actor };
-    });
-    await ActorFilmController.updateFilmCountries(actors);
-
-    if (req.files.cardImg) {
-      cardImg = req.files.cardImg[0].path;
-    }
-
-    if (req.files.trailer) {
-      trailer = req.files.trailer[0].path;
-    }
-    if (req.files.video) {
-      video = req.files.video[0].path;
-    }
-
-    const getFilm = await Film.findOne({ where: { id: +id[0] } });
-    if (cardImg) {
-      const cardImgPath = getFilm.cardImg.split("\\");
-      fs.unlink(
-        process.cwd() + "/public/images/" + cardImgPath[cardImgPath.length - 1],
-        (err) => {
-          if (err) {
-            return new Error(err);
-          }
-        }
-      );
-    }
-
-    if (trailer) {
-      const trailerPath = getFilm.trailer.split("\\");
-      fs.unlink(
-        process.cwd() + "/public/video/" + trailerPath[trailerPath.length - 1],
-        (err) => {
-          if (err) {
-            return new Error(err);
-          }
-        }
-      );
-    }
-    if (video) {
-      const videoPath = getFilm.video.split("\\");
-      fs.unlink(
-        process.cwd() + "/public/video/" + videoPath[videoPath.length - 1],
-        (err) => {
-          if (err) {
-            return new Error(err);
-          }
-        }
-      );
-    }
-
-    film = Object.fromEntries(Object.entries(film).filter(([_, v]) => v != ""));
-    const updateFilm = await Film.update(
-      {
-        ...film,
-        cardImg,
-        trailer,
-        video,
-      },
-      {
-        where: {
-          id: id[0],
-        },
+    try {
+      let { id, genres, countries, actors, authors, ...film } = req.body;
+      let cardImg, trailer, video;
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).end(errors.array()[0].msg);
       }
-    );
 
-    res.status(200).send(updateFilm);
+      await FilmGenreController.deleteFilmGenres(id, genres);
+      genres = genres.map((genr) => {
+        return { filmId: id[0], genreId: +genr };
+      });
+      await FilmGenreController.updateFilmGenres(genres);
+
+      await FilmCountryController.deleteFilmCountries(id, countries);
+      countries = countries.map((country) => {
+        return { filmId: id[0], countryId: +country };
+      });
+      await FilmCountryController.updateFilmCountries(countries);
+
+      await AuthorFilmController.deleteFilmAuthors(id, authors);
+      authors = authors.map((author) => {
+        return { filmId: id[0], authorId: +author };
+      });
+      await AuthorFilmController.updateFilmAuthors(authors);
+
+      await ActorFilmController.deleteFilmCountries(id, actors);
+      actors = actors.map((actor) => {
+        return { filmId: id[0], actorId: +actor };
+      });
+      await ActorFilmController.updateFilmCountries(actors);
+
+      if (req.files.cardImg) {
+        cardImg = req.files.cardImg[0].path;
+      }
+
+      if (req.files.trailer) {
+        trailer = req.files.trailer[0].path;
+      }
+      if (req.files.video) {
+        video = req.files.video[0].path;
+      }
+
+      const getFilm = await Film.findOne({ where: { id: +id[0] } });
+      if (cardImg) {
+        const cardImgPath = getFilm.cardImg.split("\\");
+        fs.unlink(
+          process.cwd() + "/public/images/" + cardImgPath[cardImgPath.length - 1],
+          (err) => {
+            if (err) {
+              return new Error(err);
+            }
+          }
+        );
+      }
+
+      if (trailer) {
+        const trailerPath = getFilm.trailer.split("\\");
+        fs.unlink(
+          process.cwd() + "/public/video/" + trailerPath[trailerPath.length - 1],
+          (err) => {
+            if (err) {
+              return new Error(err);
+            }
+          }
+        );
+      }
+      if (video) {
+        const videoPath = getFilm.video.split("\\");
+        fs.unlink(
+          process.cwd() + "/public/video/" + videoPath[videoPath.length - 1],
+          (err) => {
+            if (err) {
+              return new Error(err);
+            }
+          }
+        );
+      }
+
+      film = Object.fromEntries(Object.entries(film).filter(([_, v]) => v != ""));
+      await Film.update(
+        {
+          ...film,
+          cardImg,
+          trailer,
+          video,
+        },
+        {
+          where: {
+            id: id[0],
+          },
+        }
+      );
+
+      return res.status(200).send("updated");
+    } catch {
+      return res.status(505).send("Network Error")
+    }
   }
 
   static async deleteFilm(req, res) {

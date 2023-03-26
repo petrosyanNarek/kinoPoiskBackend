@@ -31,6 +31,8 @@ const regexpValidation = require("./validation/regexpValidation");
 const anyTablesValidShema = require("./validation/anyTablesValidShema");
 const actorAuthorValidation = require("./validation/actorAuthorValidation");
 const filmValidation = require("./validation/filmValidation");
+const series = require("./models/series");
+const seriesValidation = require("./validation/seriesValidation");
 
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
@@ -263,6 +265,7 @@ app.post(
       name: "video",
     },
   ]),
+  checkSchema(seriesValidation.add("Series")),
   SeriesController.addSeries
 );
 app.put(
@@ -278,6 +281,7 @@ app.put(
       name: "video",
     },
   ]),
+  checkSchema(seriesValidation.add("Series", true)),
   SeriesController.updateSeries
 );
 app.delete("/series/deleteSeries", SeriesController.deleteSeries);

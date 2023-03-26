@@ -1,4 +1,5 @@
 const { validationResult } = require("express-validator");
+const { Op } = require("sequelize");
 const { Genre, Film } = require("../models");
 const pageLimitChek = require("./hooks/pageLimitChek");
 const sortBySearchBy = require("./hooks/sortBySearchBy");
@@ -76,6 +77,8 @@ class GenreController {
       return res.status(500).send("Network Error");
     }
   }
+
+
   static async getFilteredGenres(req, res) {
     const { page, limit } = pageLimitChek(req.body.page, req.body.limit);
     const sortBy = req.body.sortBy || "createdAt";

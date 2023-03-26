@@ -5,18 +5,16 @@ module.exports = {
     return {
       id: isEdit
         ? {
-            in: ["body"],
-            errorMessage: "Id is wrong",
-            isInt: true,
-            errorMessage: "Id is not valid type",
-          }
+          in: ["body"],
+          errorMessage: "Id is wrong",
+          isInt: true,
+          errorMessage: "Id is not valid type",
+        }
         : "",
       name: {
         in: ["body"],
-        matches: {
-          options: name.reg,
-          errorMessage: name.message,
-        },
+        isString: true,
+        errorMessage: "Film Name is not valid text",
         trim: true,
         isLength: {
           options: { min: 3, max: 20 },
